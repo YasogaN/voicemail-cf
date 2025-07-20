@@ -441,7 +441,7 @@ For security concerns, please email security@yasogan.dev instead of using the is
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache-2.0 License - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
