@@ -109,6 +109,11 @@
   resolved "https://registry.yarnpkg.com/@cloudflare/workerd-windows-64/-/workerd-windows-64-1.20250712.0.tgz#f6bb5bc9fdde0d96bda875106fb705d1d8924cb7"
   integrity sha512-qS8H5RCYwE21Om9wo5/F807ClBJIfknhuLBj16eYxvJcj9JqgAKWi12BGgjyGxHuJJjeoQ63lr4wHAdbFntDDg==
 
+"@cloudflare/workers-types@^4.20250523.0":
+  version "4.20250719.0"
+  resolved "https://registry.yarnpkg.com/@cloudflare/workers-types/-/workers-types-4.20250719.0.tgz#f84eda1416f30768a77f710780a4eb3fdd197d54"
+  integrity sha512-tSc2FM2QPWA8ZmDniQXz+4qVKuf8zrwVwqlkXxxGBsQHxTpcukuMibYcYWxwonzbzK7YzSug+iena2F8gGOuOw==
+
 "@cspotcode/source-map-support@0.8.1":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz#00629c35a688e05a88b1cda684fb9d5e73f000a1"
@@ -906,6 +911,13 @@ check-error@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/check-error/-/check-error-2.1.1.tgz#87eb876ae71ee388fa0471fe423f494be1d96ccc"
   integrity sha512-OAlb+T7V4Op9OwdkjmguYRqncdlx5JiofwOAUkmTF+jNdHwzTaTs4sRAGpzLF3oOz5xAyDGrPgeIDFQmDOTiJw==
+
+cloudflare-test-utils@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/cloudflare-test-utils/-/cloudflare-test-utils-1.0.2.tgz#f2ed085d325f47bcddcd1dc1f17ff008fbdcf3f8"
+  integrity sha512-wrpQX3TVkHFTZCdaiQweo0w0HlvNc+UF/18xnExHwFHtPnqktk1Bln3dGmvd4yDWoEN3UzD02h9P76W7TSC6VA==
+  dependencies:
+    "@cloudflare/workers-types" "^4.20250523.0"
 
 color-convert@^2.0.1:
   version "2.0.1"

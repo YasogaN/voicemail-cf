@@ -42,6 +42,7 @@
     "@types/node": "22.13.0",
     "@types/service-worker-mock": "^2.0.4",
     "@vitest/coverage-v8": "^2.1.6",
+    "cloudflare-test-utils": "^1.0.2",
     "miniflare": "^3.20240925.1",
     "service-worker-mock": "^2.0.5",
     "vite-tsconfig-paths": "^5.1.4",
