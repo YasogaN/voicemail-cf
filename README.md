@@ -54,7 +54,21 @@ The service is built using modern web technologies:
    wrangler login
    ```
 
-4. **Configure environment variables**
+4. **Configure Twilio API credentials**
+
+   Create a Twilio API key with restricted scopes for security:
+
+   1. Log in to your [Twilio Console](https://console.twilio.com/)
+   2. Navigate to **Account** → **API keys & tokens**
+   3. Click **Create API key**
+   4. Set the key type to **Restricted**
+   5. Configure the following scopes:
+      - `voice.calls:read`
+      - `voice.recordings:read`
+      - `voice.recordings:delete`
+   6. Save the API Key SID and Secret (you won't be able to see the secret again)
+
+5. **Configure environment variables**
 
    Set the following environment variables in your Cloudflare Workers dashboard or via `wrangler secret`:
 
@@ -62,6 +76,10 @@ The service is built using modern web technologies:
    # Provider configuration
    wrangler secret put provider          # twilio
    wrangler secret put endpoint          # Your deployed worker URL
+
+   # Twilio API credentials
+   wrangler secret put twilio_api_key    # Your Twilio API Key SID
+   wrangler secret put twilio_api_secret # Your Twilio API Key Secret
 
    # Phone numbers (comma-separated for multiple numbers)
    wrangler secret put numbers           # +1234567890,+0987654321
@@ -73,7 +91,7 @@ The service is built using modern web technologies:
    wrangler secret put recording_max_length  # Maximum recording duration in seconds
    ```
 
-5. **Create Cloudflare R2 bucket**
+6. **Create Cloudflare R2 bucket**
 
    Create an R2 bucket to store voicemail recordings:
 
@@ -93,7 +111,7 @@ The service is built using modern web technologies:
 
    **Note**: Make sure to update your `wrangler.jsonc` file to reference the bucket name you created.
 
-6. **Deploy to Cloudflare Workers**
+7. **Deploy to Cloudflare Workers**
    ```bash
    wrangler deploy
    ```
@@ -122,6 +140,8 @@ The service is built using modern web technologies:
 | ---------------------- | ------------------------------------------ | ----------- | ------------------------------------------- |
 | `provider`             | Voice service provider                     | Yes         | `twilio`                                    |
 | `endpoint`             | Base URL of your deployed worker           | Yes         | `https://voicemail.your-domain.workers.dev` |
+| `twilio_api_key`       | Twilio API Key SID (restricted)            | Yes         | `SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`        |
+| `twilio_api_secret`    | Twilio API Key Secret                      | Yes         | `your-api-key-secret`                       |
 | `numbers`              | Comma-separated list of authorized numbers | Yes         | `+1234567890,+0987654321`                   |
 | `recording_type`       | Type of recording prompt                   | Yes         | `url` or `text`                             |
 | `recording_url`        | URL to audio prompt (if type=url)          | Conditional | `https://example.com/prompt.mp3`            |
