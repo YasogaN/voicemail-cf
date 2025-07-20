@@ -16,7 +16,7 @@ export const ProviderConfig = z.object({
       text: z.string().nonempty("Recording text must be provided"),
     })
   ]).and(z.object({
-    maxLength: z.number().optional()
+    maxLength: z.number().optional().default(30).refine(val => val > 0, "Max length must be a positive number")
   }))
 })
 
