@@ -44,6 +44,7 @@
     "@vitest/coverage-v8": "^2.1.6",
     "miniflare": "^3.20240925.1",
     "service-worker-mock": "^2.0.5",
+    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^2.1.6",
     "wrangler": "^4.25.0"
   }
