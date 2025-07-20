@@ -7,30 +7,33 @@ A scalable, cloud-native voicemail service built on Cloudflare Workers that prov
 ## Features
 
 - 🚀 **Serverless Architecture**: Built on Cloudflare Workers for global edge deployment
-- 📞 **Multi-Provider Support**: Currently supports Twilio with planned support for additional providers
+- 📞 **Multi-Provider Support**: Currently supports Twilio with extensible architecture for additional providers
 - 🔊 **Flexible Recording Options**: Support for both URL-based audio prompts and text-to-speech
 - 💾 **Cloud Storage**: Automatic recording storage using Cloudflare R2
 - 📋 **Comprehensive Logging**: Detailed call metadata and recording indexing
 - 🔧 **Configuration-Driven**: Environment-based configuration for easy deployment
-- 📖 **OpenAPI Documentation**: Auto-generated API documentation with interactive interface
+- 📖 **OpenAPI Documentation**: Auto-generated API documentation with interactive interface using Chanfana
 - 🛡️ **Type Safety**: Full TypeScript implementation with Zod validation
+- ✅ **Comprehensive Testing**: Unit and integration tests with Vitest
 
 ## Architecture
 
 The service is built using modern web technologies:
 
 - **Runtime**: Cloudflare Workers
-- **Framework**: Hono with chanfana for OpenAPI support
+- **Framework**: Hono with Chanfana for OpenAPI support
 - **Storage**: Cloudflare R2 for recording files and metadata
 - **Validation**: Zod for runtime type checking
-- **Voice Processing**: Provider-specific SDKs (Twilio, etc.)
+- **Voice Processing**: Provider-specific SDKs (Twilio)
+- **Testing**: Vitest with comprehensive test coverage
+- **Type Safety**: TypeScript with strict configuration
 
 ## Quick Start
 
 ### Prerequisites
 
 - [Cloudflare Workers account](https://workers.dev) (free tier sufficient)
-- [Node.js 18+](https://nodejs.org/)
+- [Node.js 16+](https://nodejs.org/) (specified in package.json engines)
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/)
 
 ### Installation
@@ -45,7 +48,7 @@ The service is built using modern web technologies:
 2. **Install dependencies**
 
    ```bash
-   npm install
+   yarn install
    ```
 
 3. **Authenticate with Cloudflare**
@@ -138,21 +141,67 @@ The service is built using modern web technologies:
    wrangler deploy
    ```
 
+## Testing
+
+The project includes comprehensive testing with Vitest:
+
+### Test Structure
+
+- **Unit Tests**: Individual endpoint and provider logic testing
+- **Integration Tests**: End-to-end workflow testing (placeholder directory ready)
+- **Configuration Tests**: Environment variable validation testing
+- **Mock Support**: R2 bucket mocking with `cloudflare-test-utils`
+
+### Running Tests
+
+```bash
+# Run all tests
+yarn test
+
+# Run tests with coverage report
+yarn run test:coverage
+
+# Run tests in watch mode during development
+yarn run test:watch
+```
+
+### Test Coverage
+
+The test suite covers:
+
+- All API endpoints (`/health`, `/incoming`, `/record`, `/hangup`, `/store`)
+- Provider implementations (Twilio)
+- Configuration validation and parsing
+- Error handling scenarios
+- TwiML response generation
+
 ### Development
 
 1. **Start local development server**
 
    ```bash
-   npm run dev
+   yarn run dev
    ```
 
-2. **Access the API documentation**
+   This starts the Wrangler development server with hot reloading.
 
-   Open `http://localhost:8787/` to view the interactive OpenAPI documentation.
+2. **Access the API documentation**
+   Open `http://localhost:8787/` to view the interactive OpenAPI documentation powered by Chanfana.
 
 3. **Test endpoints**
+   The Swagger interface allows you to test all endpoints directly from the browser, or use tools like curl/Postman.
 
-   The Swagger interface allows you to test all endpoints directly from the browser.
+4. **Run tests during development**
+
+   ```bash
+   yarn run test:watch
+   ```
+
+5. **Generate TypeScript types**
+   ```bash
+   yarn run cf-typegen
+   ```
+   This generates types based on your Cloudflare Workers environment.
 
 ## Configuration
 
@@ -184,24 +233,32 @@ The service is built using modern web technologies:
 
 ### Call Flow
 
+The current implementation provides the following call flow:
+
 1. **Incoming Call** → `/incoming`
 
-   - Checks if caller is in authorized numbers list
-   - Routes to recording or menu based on authorization
+   - Checks if caller number is in authorized numbers list
+   - **Authorized numbers**: Redirected to `/menu` (currently returns 404 - menu system planned)
+   - **Unauthorized numbers**: Redirected to `/record` for voicemail recording
 
 2. **Recording** → `/record`
 
    - Plays configured prompt (audio file or text-to-speech)
    - Initiates voice recording with specified parameters
+   - Automatically proceeds to hangup after recording
 
 3. **Completion** → `/hangup`
 
    - Terminates call after recording completion
+   - Returns TwiML hangup instruction
 
 4. **Storage** → `/store`
-   - Receives recording callback from provider
-   - Downloads and stores recording in R2
-   - Updates central index with metadata
+   - Receives recording callback from provider (currently Twilio)
+   - Downloads recording metadata and file
+   - Stores recording in Cloudflare R2 bucket
+   - Updates central index with call metadata
+
+**Note**: The menu system for authorized callers is planned but not yet implemented. Currently, authorized numbers will receive a 404 response when redirected to `/menu`.
 
 ## Storage Structure
 
@@ -234,16 +291,32 @@ recordings/
 
 ```
 src/
-├── index.ts              # Main application router
-├── types.ts              # TypeScript type definitions
+├── index.ts              # Main application router with OpenAPI setup
+├── types.ts              # TypeScript type definitions and Zod schemas
 ├── endpoint/             # API endpoint handlers
 │   ├── health.ts         # Health check endpoint
 │   ├── incoming.ts       # Incoming call handler
-│   ├── record.ts         # Recording endpoint
-│   ├── hangup.ts         # Call termination
-│   └── store.ts          # Recording storage handler
-└── lib/
-    └── config.ts         # Configuration management
+│   ├── record.ts         # Recording endpoint with TwiML generation
+│   ├── hangup.ts         # Call termination handler
+│   └── store.ts          # Recording storage and metadata handler
+├── lib/
+│   ├── config.ts         # Environment configuration management
+│   └── providers/        # Voice service provider implementations
+│       ├── base.ts       # Base provider abstract class
+│       ├── index.ts      # Provider factory and exports
+│       └── twilio.ts     # Twilio provider implementation
+└── test/                 # Comprehensive test suite
+    ├── setup.ts          # Test environment setup
+    ├── types.test.ts     # Type validation tests
+    ├── endpoint/         # Endpoint-specific tests
+    │   ├── hangup.test.ts
+    │   ├── health.test.ts
+    │   ├── incoming.test.ts
+    │   ├── record.test.ts
+    │   └── store.test.ts
+    ├── integration/      # Integration test placeholder
+    └── lib/
+        └── config.test.ts # Configuration validation tests
 ```
 
 ## Development Guidelines
@@ -251,9 +324,17 @@ src/
 ### Adding New Endpoints
 
 1. Create a new file in `src/endpoint/`
-2. Implement the `OpenAPIRoute` class
-3. Define the OpenAPI schema
+2. Implement the `OpenAPIRoute` class from Chanfana
+3. Define the OpenAPI schema with proper Zod validation
 4. Register the route in `src/index.ts`
+
+### Adding New Providers
+
+1. Create a new provider class in `src/lib/providers/`
+2. Extend the `BaseProvider` abstract class
+3. Implement all required methods for call handling
+4. Add the provider to the factory function in `src/lib/providers/index.ts`
+5. Update the `ProviderConfig` discriminated union in `src/types.ts`
 
 ### Error Handling
 
@@ -266,207 +347,94 @@ All endpoints implement comprehensive error handling:
 
 ### Testing
 
-```bash
-# Run development server
-npm run dev
+The project includes comprehensive testing with Vitest:
 
-# Generate TypeScript types
-npm run cf-typegen
+```bash
+# Run all tests
+yarn test
+
+# Run tests with coverage
+yarn run test:coverage
+
+# Run tests in watch mode
+yarn run test:watch
+
+# Run development server
+yarn run dev
+
+# Generate TypeScript types from Wrangler
+yarn run cf-typegen
 
 # Deploy to production
-npm run deploy
+yarn run deploy
 ```
 
 ## Roadmap
 
-### Q3 2025: Complete Feature Development
+### Current Status (Q3 2025)
+
+The project currently includes:
+
+- ✅ **Core Voicemail Functionality**: Complete recording, storage, and retrieval system
+- ✅ **Twilio Integration**: Full support for Twilio voice services
+- ✅ **Cloudflare R2 Storage**: Automatic recording and metadata storage
+- ✅ **OpenAPI Documentation**: Interactive API documentation with Chanfana
+- ✅ **Comprehensive Testing**: Unit and integration tests with Vitest
+- ✅ **Type Safety**: Full TypeScript implementation with Zod validation
+
+### Planned Features
 
 #### Multi-Provider Support
 
-##### Plivo Integration
+- [ ] **Plivo Integration**: SDK integration and webhook handlers
+- [ ] **Telnyx Integration**: Call Control API integration
+- [ ] **SignalWire Integration**: LaML response format support
+- [ ] **Bandwidth Integration**: Voice API and BXML support
 
-- [ ] Implement Plivo SDK integration
-- [ ] Add Plivo-specific webhook handlers
-- [ ] Create Plivo configuration schema
-- [ ] Add Plivo recording callback processing
-- [ ] Implement Plivo TwiML equivalent (XML response format)
-- [ ] Add comprehensive testing for Plivo integration
+#### Enhanced Voicemail System
 
-##### Telnyx Integration
+- [ ] **Interactive Voice Menu**: DTMF input handling and menu navigation
+- [ ] **Message Management**: Play, save, delete, and forward capabilities
+- [ ] **Authentication System**: PIN-based access control
+- [ ] **Multi-language Support**: Localized prompts and menus
 
-- [ ] Implement Telnyx SDK integration
-- [ ] Add Telnyx webhook endpoint handlers
-- [ ] Create Telnyx configuration schema
-- [ ] Add Telnyx recording storage workflow
-- [ ] Implement Telnyx Call Control API integration
-- [ ] Add error handling for Telnyx-specific scenarios
+#### Advanced Features
 
-##### SignalWire Integration
-
-- [ ] Implement SignalWire SDK integration
-- [ ] Add SignalWire webhook handlers
-- [ ] Create SignalWire configuration schema
-- [ ] Add SignalWire recording callback processing
-- [ ] Implement SignalWire LaML response format
-- [ ] Add support for SignalWire advanced features
-
-##### Bandwidth Integration
-
-- [ ] Implement Bandwidth Voice API integration
-- [ ] Add Bandwidth webhook endpoint handlers
-- [ ] Create Bandwidth configuration schema
-- [ ] Add Bandwidth recording storage workflow
-- [ ] Implement Bandwidth BXML response format
-- [ ] Add comprehensive error handling
-
-#### Enhanced Voicemail Menu System
-
-##### Interactive Voice Menu Framework
-
-- [ ] Design flexible menu configuration schema
-- [ ] Implement menu state management
-- [ ] Add DTMF (touch-tone) input handling
-- [ ] Create menu navigation logic
-- [ ] Add support for nested menu structures
-- [ ] Implement timeout and error handling for menus
-
-##### Core Menu Features
-
-- [ ] **Main Menu Options**:
-  - Listen to new messages
-  - Listen to saved messages
-  - Change personal greeting
-  - Change password/PIN
-  - Mailbox settings
-- [ ] **Message Management**:
-  - Play messages with navigation (previous/next/replay)
-  - Save important messages
-  - Delete messages
-  - Forward messages to email
-- [ ] **Greeting Management**:
-  - Record personal greeting
-  - Use default greeting
-  - Temporary greeting (out of office)
-
-##### Advanced Menu Capabilities
-
-- [ ] Multi-language support for menu prompts
-- [ ] Custom menu configurations per phone number
-- [ ] Voice-activated commands (speech recognition)
-- [ ] Integration with external calendar systems
-- [ ] Conditional menu flows based on time/date
-- [ ] Admin menu for system management
-
-##### Authentication & Security
-
-- [ ] PIN-based authentication system
-- [ ] Configurable PIN requirements
-- [ ] Account lockout protection
-- [ ] Session management for menu navigation
-- [ ] Audit logging for menu actions
-- [ ] Integration with external authentication systems
-
-#### Enhanced Features
-
-##### Advanced Recording Features
-
-- [ ] Voicemail transcription using Cloudflare AI
-- [ ] Email notifications with recording attachments
-- [ ] SMS notifications for new voicemails
-- [ ] Recording quality enhancement
-- [ ] Automatic noise reduction
-- [ ] Recording compression and optimization
-
-##### Analytics & Reporting
-
-- [ ] Call volume analytics dashboard
-- [ ] Recording duration statistics
-- [ ] Caller demographics reporting
-- [ ] Usage pattern analysis
-- [ ] Export capabilities for reports
-- [ ] Real-time monitoring dashboard
-
-##### Integration Capabilities
-
-- [ ] Webhook support for external systems
-- [ ] REST API for recording management
-- [ ] Calendar integration for greeting automation
-- [ ] CRM system integrations
-- [ ] Third-party notification services
-- [ ] Custom plugin architecture
-
-##### Administrative Features
-
-- [ ] Web-based administration interface
-- [ ] Bulk configuration management
-- [ ] Multi-tenant support
-- [ ] Advanced security policies
-- [ ] Compliance reporting (GDPR, CCPA)
-- [ ] Backup and disaster recovery
-
-#### Enterprise Features
-
-##### Scalability Enhancements
-
-- [ ] Auto-scaling based on call volume
-- [ ] Global edge deployment optimization
-- [ ] Advanced caching strategies
-- [ ] Database clustering for metadata
-- [ ] Load balancing improvements
-- [ ] Performance monitoring and optimization
-
-##### Enterprise Integration
-
-- [ ] Active Directory/LDAP integration
-- [ ] Single Sign-On (SSO) support
-- [ ] Enterprise security compliance
-- [ ] Advanced audit logging
-- [ ] Custom branding capabilities
-- [ ] White-label deployment options
-
-## Provider-Specific Implementation Checklist
-
-### For Each New Provider Integration:
-
-#### Core Requirements
-
-- [ ] SDK integration and authentication
-- [ ] Webhook endpoint handlers
-- [ ] Configuration schema updates
-- [ ] Recording callback processing
-- [ ] Provider-specific response format (TwiML, BXML, etc.)
-- [ ] Error handling and retry logic
-
-#### Testing Requirements
-
-- [ ] Unit tests for provider-specific logic
-- [ ] Integration tests with provider sandbox
-- [ ] End-to-end call flow testing
-- [ ] Load testing for high-volume scenarios
-- [ ] Error scenario testing
-- [ ] Documentation and examples
-
-#### Configuration Requirements
-
-- [ ] Environment variable schema
-- [ ] Provider-specific credential management
-- [ ] Webhook URL configuration
-- [ ] Feature capability mapping
-- [ ] Rate limiting and quota management
-- [ ] Monitoring and alerting setup
+- [ ] **AI-Powered Transcription**: Using Cloudflare AI for speech-to-text
+- [ ] **Email Notifications**: Recording attachments via email
+- [ ] **SMS Notifications**: Text alerts for new voicemails
+- [ ] **Analytics Dashboard**: Call volume and usage statistics
+- [ ] **Webhook Integration**: External system notifications
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Here's how to get started:
 
 ### Development Setup
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
+2. Clone your fork and navigate to the project directory
+3. Install dependencies: `yarn install`
+4. Set up your environment variables for testing
+5. Run tests to ensure everything works: `yarn test`
+6. Start the development server: `yarn dev`
+
+### Making Changes
+
+1. Create a feature branch from main
+2. Make your changes with appropriate tests
+3. Ensure all tests pass: `yarn test`
+4. Verify type safety: `yarn cf-typegen`
+5. Test your changes in the development environment
+6. Submit a pull request with a clear description
+
+### Code Quality
+
+- Follow TypeScript best practices
+- Add comprehensive tests for new functionality
+- Use Zod schemas for validation
+- Follow the existing code structure and patterns
+- Ensure OpenAPI documentation is updated for new endpoints
 
 ## Security
 
@@ -479,7 +447,9 @@ This project is licensed under the Apache-2.0 License - see the [LICENSE](LICENS
 ## Support
 
 - 🐛 [Issue Tracker](https://github.com/YasogaN/voicemail-cf/issues)
+- 📖 [Documentation](https://github.com/YasogaN/voicemail-cf/blob/main/README.md)
+- 🚀 [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
 
 ---
 
-**Built with ❤️ using Cloudflare Workers, Hono, and TypeScript**
+**Built with ❤️ using Cloudflare Workers, Hono, Chanfana, and TypeScript**
