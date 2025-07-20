@@ -34,11 +34,11 @@ export class Record extends OpenAPIRoute {
         }
 
         twiml.record({
-          action: "../hangup",
+          action: `${config.endpoint}/hangup`,
           method: 'GET',
           maxLength: config.recording.maxLength,
           playBeep: true,
-          recordingStatusCallback: "../store",
+          recordingStatusCallback: `${config.endpoint}/store`,
           recordingStatusCallbackEvent: ["completed"],
           recordingStatusCallbackMethod: 'POST',
         });

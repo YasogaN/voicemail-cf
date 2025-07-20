@@ -34,9 +34,9 @@ export class Incoming extends OpenAPIRoute {
 
         // Handle the call based on whether it's from a configured number
         if (config.numbers.includes(fromNumber)) {
-          twiml.redirect("../menu");
+          twiml.redirect(`${config.endpoint}/menu`);
         } else {
-          twiml.redirect("../record");
+          twiml.redirect(`${config.endpoint}/record`);
         }
         return c.text(twiml.toString(), 200);
       } else {
