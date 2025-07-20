@@ -51,6 +51,10 @@ export class TwilioProvider extends BaseProvider {
       twiml.say(this.config.recording.text!);
     }
 
+    if (!this.config.endpoint || typeof this.config.endpoint !== "string" || this.config.endpoint.trim() === "") {
+      throw new Error("Invalid endpoint in TwilioProvider config");
+    }
+
     twiml.record({
       action: `${this.config.endpoint}/hangup`,
       method: 'GET',
