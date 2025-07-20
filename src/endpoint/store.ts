@@ -2,7 +2,6 @@ import { OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import { type AppContext } from "../types";
 import { getConfig } from "../lib/config";
-import { Twilio } from "twilio";
 
 export class Store extends OpenAPIRoute {
   schema = {
