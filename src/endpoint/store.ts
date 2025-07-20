@@ -1,9 +1,9 @@
 import { OpenAPIRoute } from "chanfana";
 import { z } from "zod";
-import { type AppContext } from "../types";
-import { getConfig } from "../lib/config";
-import { getProvider } from "../lib/providers";
-import { RecordingMetadata } from "../lib/providers/base";
+import { type AppContext } from "@/types";
+import { getConfig } from "@/lib/config";
+import { getProvider } from "@/lib/providers";
+import { RecordingMetadata } from "@/lib/providers/base";
 
 export class Store extends OpenAPIRoute {
   schema = {

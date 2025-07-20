@@ -1,10 +1,10 @@
-import { ProviderConfigType } from "../../types";
-import { BaseProvider } from "./base";
+import { ProviderConfigType } from "@/types";
+import { BaseProvider } from "@/lib/providers/base";
 import { TwilioProvider } from "./twilio";
 
 // Export only the provider classes
-export { BaseProvider } from "./base";
-export { TwilioProvider } from "./twilio";
+export { BaseProvider } from "@/lib/providers/base";
+export { TwilioProvider } from "@/lib/providers/twilio";
 
 // Factory function to get the appropriate provider instance
 export function getProvider(config: ProviderConfigType): BaseProvider {

@@ -1,8 +1,8 @@
 import { OpenAPIRoute } from "chanfana";
 import { z } from "zod";
-import { type AppContext } from "../types";
-import { getConfig } from "../lib/config";
-import { getProvider } from "../lib/providers";
+import { type AppContext } from "@/types";
+import { getConfig } from "@/lib/config";
+import { getProvider } from "@/lib/providers";
 
 export class Hangup extends OpenAPIRoute {
   schema = {

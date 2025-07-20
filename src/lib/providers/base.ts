@@ -1,4 +1,4 @@
-import { ProviderConfigType } from "../../types";
+import { ProviderConfigType } from "@/types";
 
 export abstract class BaseProvider {
   protected config: ProviderConfigType;

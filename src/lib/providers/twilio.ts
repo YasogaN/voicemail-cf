@@ -1,6 +1,6 @@
 import VoiceResponse from "twilio/lib/twiml/VoiceResponse";
-import { BaseProvider } from "./base";
-import { ProviderConfigType } from "../../types";
+import { BaseProvider } from "@/lib/providers/base";
+import { ProviderConfigType } from "@/types";
 
 interface TwilioConfig extends ProviderConfigType {
   provider: "twilio";

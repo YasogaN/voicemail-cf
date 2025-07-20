@@ -1,4 +1,4 @@
-import { ProviderConfig, ProviderConfigType } from "../types";
+import { ProviderConfig, ProviderConfigType } from "@/types";
 
 export function getConfig(env: Cloudflare.Env): ProviderConfigType {
   // Parse numbers from comma-separated string

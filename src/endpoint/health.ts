@@ -1,6 +1,6 @@
 import { OpenAPIRoute } from "chanfana";
 import { z } from "zod";
-import { type AppContext } from "../types";
+import { type AppContext } from "@/types";
 
 export class Health extends OpenAPIRoute {
   schema = {
