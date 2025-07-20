@@ -5,6 +5,7 @@ export type AppContext = Context<{ Bindings: Env }>;
 
 export const ProviderConfig = z.object({
   provider: z.string(),
+  numbers: z.array(z.string()),
 })
 
 export type ProviderConfig = z.infer<typeof ProviderConfig>;
