@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { Health } from "./endpoint/health";
 import { Incoming } from "./endpoint/incoming";
 import { Record } from "./endpoint/record";
+import { Hangup } from "./endpoint/hangup";
 
 // Start a Hono app
 const app = new Hono<{ Bindings: Env }>();
@@ -20,6 +21,9 @@ openapi.get("/incoming", Incoming);
 
 // Register the recording endpoint
 openapi.get("/record", Record);
+
+// Register the hangup endpoint
+openapi.get("/hangup", Hangup);
 
 // Export the Hono app
 export default app;
