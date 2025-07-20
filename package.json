@@ -32,6 +32,7 @@
     "chanfana": "^2.6.3",
     "hono": "^4.6.20",
     "twilio": "^5.7.3",
+    "typescript": "^5.8.3",
     "zod": "^3.24.1"
   },
   "devDependencies": {
