@@ -1,6 +1,6 @@
 import { OpenAPIRoute } from "chanfana";
 import { z } from "zod";
-import { type AppContext } from "@/types";
+import { storeRequestSchema, type AppContext } from "@/types";
 import { getConfig } from "@/lib/config";
 import { getProvider } from "@/lib/providers";
 import { RecordingMetadata } from "@/lib/providers/base";
@@ -13,16 +13,7 @@ export class Store extends OpenAPIRoute {
       body: {
         content: {
           "application/x-www-form-urlencoded": {
-            schema: z.object({
-              AccountSid: z.string().nonempty().describe("The SID of the account that made the call").regex(/^AC[0-9a-fA-F]{32}$/, "Invalid Account SID format").min(34, "Account SID must be at least 34 characters long").max(34, "Account SID must be at most 34 characters long"),
-              CallSid: z.string().nonempty().describe("The SID of the call being recorded").regex(/^CA[0-9a-fA-F]{32}$/, "Invalid Call SID format").min(34, "Call SID must be at least 34 characters long").max(34, "Call SID must be at most 34 characters long"),
-              RecordingSid: z.string().nonempty().describe("The SID of the recording"),
-              RecordingUrl: z.string().url().describe("The URL of the recording"),
-              RecordingStatus: z.enum(["completed"]).describe("The status of the recording"),
-              RecordingDuration: z.string().regex(/^\d+$/).describe("The duration of the recording in seconds"),
-              RecordingChannels: z.string().regex(/^\d+$/).describe("The number of channels in the recording"),
-              RecordingSource: z.literal('RecordVerb').describe("The initiation method used"),
-            }),
+            schema: storeRequestSchema,
           },
         },
       }
@@ -47,7 +38,14 @@ export class Store extends OpenAPIRoute {
     try {
       const config = getConfig(c.env);
       const provider = getProvider(config);
-      const body = await c.req.parseBody();
+      const { success, data, error } = storeRequestSchema.safeParse(await c.req.parseBody());
+      if (!success) {
+        return c.json({
+          status: false,
+          message: `Invalid request data: ${error.message}`,
+        }, 400);
+      }
+      const body = data;
 
       // Fetch recording metadata
       const recordingMetadata = await provider.fetchRecordingMetadata(body.RecordingUrl as string);
