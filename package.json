@@ -1,7 +1,27 @@
 {
-  "name": "cloudflare-workers-openapi",
-  "version": "0.0.1",
+  "name": "voicemail-cf",
+  "version": "0.1.0",
   "private": true,
+  "description": "A voicemail service using Cloudflare Workers and DID providers",
+  "author": "Yasoga Nanayakkarawasam <contact@yasogand.dev>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YasogaN/voicemail-cf.git"
+  },
+  "keywords": [
+    "cloudflare",
+    "workers",
+    "voicemail",
+    "twilio",
+    "hono",
+    "chanfana",
+    "typescript",
+    "serverless"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
