@@ -35,7 +35,7 @@ export class Record extends OpenAPIRoute {
 
         twiml.record({
           action: "../hangup",
-          method: 'POST',
+          method: 'GET',
           maxLength: config.recording.maxLength,
           playBeep: true,
           recordingStatusCallback: "../store",
