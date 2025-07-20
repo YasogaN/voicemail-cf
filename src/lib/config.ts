@@ -1,14 +1,46 @@
-import { ProviderConfigType } from "../types";
+import { ProviderConfig, ProviderConfigType } from "../types";
 
 export function getConfig(env: Cloudflare.Env): ProviderConfigType {
-  return {
-    provider: env.provider,
-    numbers: env.numbers.split(",").map((number) => number.trim()),
-    recording: {
-      type: env.recording_type,
-      url: env.recording_type == "url" ? env.recording_url : null,
-      text: env.recording_type == "text" ? env.recording_text : null,
-      maxLength: env.recording_max_length ? parseInt(env.recording_max_length) : null,
-    },
+  // Parse numbers from comma-separated string
+  const numbers = env.numbers ?
+    env.numbers.split(",")
+      .map((number) => number.trim())
+      .filter(number => number.length > 0) :
+    [];
+
+  // Build recording configuration
+  let recordingConfig: Record<string, string | number | undefined> = {
+    type: env.recording_type
   };
+
+  if (env.recording_type === 'url') {
+    recordingConfig.url = env.recording_url;
+  } else if (env.recording_type === 'text') {
+    recordingConfig.text = env.recording_text;
+  }
+
+  // Add maxLength if provided
+  if (env.recording_max_length) {
+    const maxLength = parseInt(env.recording_max_length);
+    if (!isNaN(maxLength)) {
+      recordingConfig.maxLength = maxLength;
+    }
+  }
+
+  const config = {
+    provider: env.provider,
+    numbers,
+    recording: recordingConfig,
+  };
+
+  // Validate with Zod schema - let Zod handle all validation
+  const parsedConfig = ProviderConfig.safeParse(config);
+  if (!parsedConfig.success) {
+    const errorMessages = parsedConfig.error.errors.map(err =>
+      `${err.path.join('.')}: ${err.message}`
+    ).join('; ');
+    throw new Error(`Configuration validation failed: ${errorMessages}`);
+  }
+
+  return parsedConfig.data;
 }
