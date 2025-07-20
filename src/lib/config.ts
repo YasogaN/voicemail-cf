@@ -2,7 +2,13 @@ import { ProviderConfigType } from "../types";
 
 export function getConfig(env: Cloudflare.Env): ProviderConfigType {
   return {
-    provider: env.provider, // Your VOIP provider, e.g., "twilio"
-    numbers: env.numbers.split(",").map((number) => number.trim()), // Your phone numbers, e.g., ["+1234567890"]
+    provider: env.provider,
+    numbers: env.numbers.split(",").map((number) => number.trim()),
+    recording: {
+      type: env.recording_type,
+      url: env.recording_type == "url" ? env.recording_url : null,
+      text: env.recording_type == "text" ? env.recording_text : null,
+      maxLength: env.recording_max_length ? parseInt(env.recording_max_length) : null,
+    },
   };
 }
