@@ -1,6 +1,6 @@
 import { fromHono } from "chanfana";
 import { Hono } from "hono";
-import { Health } from "./api/health";
+import { Health } from "./endpoint/health";
 
 // Start a Hono app
 const app = new Hono<{ Bindings: Env }>();
