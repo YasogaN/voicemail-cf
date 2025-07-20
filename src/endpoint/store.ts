@@ -47,9 +47,14 @@ export class Store extends OpenAPIRoute {
       const body = await c.req.parseBody();
 
       if (config.provider === "twilio") {
+        const authHeader = 'Basic ' + btoa(`${config.apiKey}:${config.apiSecret}`);
         // Fetch recording metadata from Twilio API
         const metadataUrl = body.RecordingUrl as string + ".json";
-        const metadataResponse = await fetch(metadataUrl);
+        const metadataResponse = await fetch(metadataUrl, {
+          headers: {
+            Authorization: authHeader
+          }
+        });
         if (!metadataResponse.ok) {
           return c.json({ status: false, message: "Failed to fetch recording metadata" }, 400);
         }
@@ -57,7 +62,11 @@ export class Store extends OpenAPIRoute {
 
         // Fetch call details from Twilio API  
         const callApiUrl = `https://api.twilio.com/2010-04-01/Accounts/${body.AccountSid}/Calls/${body.CallSid}.json`;
-        const callResponse = await fetch(callApiUrl);
+        const callResponse = await fetch(callApiUrl, {
+          headers: {
+            Authorization: authHeader
+          }
+        });
         if (!callResponse.ok) {
           return c.json({ status: false, message: "Failed to fetch call details" }, 400);
         }
@@ -65,7 +74,11 @@ export class Store extends OpenAPIRoute {
 
         // Upload only the recording file
         const mediaUrl = body.RecordingUrl as string + ".mp3";
-        const mediaResponse = await fetch(mediaUrl);
+        const mediaResponse = await fetch(mediaUrl, {
+          headers: {
+            Authorization: authHeader
+          }
+        });
         if (!mediaResponse.ok) {
           return c.json({ status: false, message: "Failed to fetch recording file" }, 400);
         }
