@@ -17,7 +17,8 @@ export const ProviderConfig = z.object({
     })
   ]).and(z.object({
     maxLength: z.number().optional().default(30).refine(val => val > 0, "Max length must be a positive number")
-  }))
+  })),
+  endpoint: z.string().url()
 })
 
 export type ProviderConfigType = z.infer<typeof ProviderConfig>;

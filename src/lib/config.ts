@@ -31,6 +31,7 @@ export function getConfig(env: Cloudflare.Env): ProviderConfigType {
     provider: env.provider,
     numbers,
     recording: recordingConfig,
+    endpoint: env.endpoint
   };
 
   // Validate with Zod schema - let Zod handle all validation
