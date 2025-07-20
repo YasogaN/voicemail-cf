@@ -20,9 +20,10 @@ export class Incoming extends OpenAPIRoute {
     },
   };
 
-  async handle(c: AppContext, req: Request) {
+  async handle(c: AppContext) {
     try {
       const config = getConfig(c.env);
+      const req = c.req;
 
       if (config.provider === "twilio") {
         // Extract query parameters from the request
@@ -42,7 +43,8 @@ export class Incoming extends OpenAPIRoute {
         return c.text("Unsupported provider", 400);
       }
     } catch (error) {
-      return c.text("Internal Server Error", 500);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      return c.text(`Internal Server Error: ${errorMessage}`, 500);
     }
   }
 }
