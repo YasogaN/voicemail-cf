@@ -27,12 +27,19 @@ export function getConfig(env: Cloudflare.Env): ProviderConfigType {
     }
   }
 
-  const config = {
+  // Build config object with provider-specific fields
+  let config: Record<string, any> = {
     provider: env.provider,
     numbers,
     recording: recordingConfig,
     endpoint: env.endpoint
   };
+
+  // Add provider-specific fields
+  if (env.provider === 'twilio') {
+    config.apiKey = env.twilio_api_key;
+    config.apiSecret = env.twilio_api_secret;
+  }
 
   // Validate with Zod schema - let Zod handle all validation
   const parsedConfig = ProviderConfig.safeParse(config);
