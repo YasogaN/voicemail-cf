@@ -59,7 +59,7 @@ The service is built using modern web technologies:
    Create a Twilio API key with restricted scopes for security:
 
    1. Log in to your [Twilio Console](https://console.twilio.com/)
-   2. Navigate to **Account** → **API keys & tokens**
+   2. Navigate to [API keys & tokens](https://console.twilio.com/us1/account/keys-credentials/api-keys)
    3. Click **Create API key**
    4. Set the key type to **Restricted**
    5. Configure the following scopes:
