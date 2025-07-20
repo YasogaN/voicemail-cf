@@ -54,7 +54,14 @@ The service is built using modern web technologies:
    wrangler login
    ```
 
-4. **Configure Twilio API credentials**
+4. **Setup Providers**
+
+   Choose and configure your voice service provider:
+
+   <details>
+   <summary><strong>Twilio</strong></summary>
+
+   #### Step 1: Create Twilio API Key
 
    Create a Twilio API key with restricted scopes for security:
 
@@ -68,18 +75,33 @@ The service is built using modern web technologies:
       - `voice.recordings:delete`
    6. Save the API Key SID and Secret (you won't be able to see the secret again)
 
-5. **Configure environment variables**
+   #### Step 2: Configure Twilio Phone Number
 
-   Set the following environment variables in your Cloudflare Workers dashboard or via `wrangler secret`:
+   1. Purchase a phone number in your [Twilio Console](https://console.twilio.com/us1/develop/phone-numbers/manage/incoming)
+   2. Configure the webhook URL for your phone number:
+      - Voice webhook: `https://your-worker.workers.dev/incoming`
+      - HTTP method: `GET`
+
+   #### Step 3: Set Twilio Environment Variables
+
+   Configure the following Twilio-specific environment variables:
 
    ```bash
-   # Provider configuration
-   wrangler secret put provider          # twilio
-   wrangler secret put endpoint          # Your deployed worker URL
-
    # Twilio API credentials
    wrangler secret put twilio_api_key    # Your Twilio API Key SID
    wrangler secret put twilio_api_secret # Your Twilio API Key Secret
+   ```
+
+   </details>
+
+5. **Configure General Environment Variables**
+
+   Set the following general environment variables that apply to all providers:
+
+   ```bash
+   # Provider configuration
+   wrangler secret put provider          # Your chosen provider (e.g., twilio)
+   wrangler secret put endpoint          # Your deployed worker URL
 
    # Phone numbers (comma-separated for multiple numbers)
    wrangler secret put numbers           # +1234567890,+0987654321
@@ -147,15 +169,6 @@ The service is built using modern web technologies:
 | `recording_url`        | URL to audio prompt (if type=url)          | Conditional | `https://example.com/prompt.mp3`            |
 | `recording_text`       | Text-to-speech prompt (if type=text)       | Conditional | `"Please leave a message after the beep"`   |
 | `recording_max_length` | Maximum recording duration in seconds      | No          | `30`                                        |
-
-### Provider Configuration
-
-#### Twilio Setup
-
-1. Create a [Twilio account](https://www.twilio.com/)
-2. Purchase a phone number
-3. Configure the webhook URL in your Twilio console:
-   - Voice webhook: `https://your-worker.workers.dev/incoming`
 
 ## API Endpoints
 
