@@ -1,8 +1,8 @@
 import { OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import { type AppContext } from "../types";
-import VoiceResponse from "twilio/lib/twiml/VoiceResponse";
 import { getConfig } from "../lib/config";
+import { getProvider } from "../lib/providers";
 
 export class Record extends OpenAPIRoute {
   schema = {
@@ -23,30 +23,10 @@ export class Record extends OpenAPIRoute {
   async handle(c: AppContext) {
     try {
       const config = getConfig(c.env);
+      const provider = getProvider(config);
 
-      if (config.provider === "twilio") {
-        const twiml = new VoiceResponse();
-        if (config.recording.type === 'url') {
-          twiml.play(config.recording.url);
-        }
-        else if (config.recording.type === 'text') {
-          twiml.say(config.recording.text);
-        }
-
-        twiml.record({
-          action: `${config.endpoint}/hangup`,
-          method: 'GET',
-          maxLength: config.recording.maxLength,
-          playBeep: true,
-          recordingStatusCallback: `${config.endpoint}/store`,
-          recordingStatusCallbackEvent: ["completed"],
-          recordingStatusCallbackMethod: 'POST',
-        });
-
-        return c.text(twiml.toString(), 200);
-      } else {
-        return c.text("Unsupported provider", 400);
-      }
+      const response = provider.createRecordingResponse();
+      return c.text(response, 200);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       return c.text(`Internal Server Error: ${errorMessage}`, 500);

@@ -2,6 +2,8 @@ import { OpenAPIRoute } from "chanfana";
 import { z } from "zod";
 import { type AppContext } from "../types";
 import { getConfig } from "../lib/config";
+import { getProvider } from "../lib/providers";
+import { RecordingMetadata } from "../lib/providers/base";
 
 export class Store extends OpenAPIRoute {
   schema = {
@@ -44,109 +46,72 @@ export class Store extends OpenAPIRoute {
   async handle(c: AppContext) {
     try {
       const config = getConfig(c.env);
+      const provider = getProvider(config);
       const body = await c.req.parseBody();
 
-      if (config.provider === "twilio") {
-        const authHeader = 'Basic ' + btoa(`${config.apiKey}:${config.apiSecret}`);
-        // Fetch recording metadata from Twilio API
-        const metadataUrl = body.RecordingUrl as string + ".json";
-        const metadataResponse = await fetch(metadataUrl, {
-          headers: {
-            Authorization: authHeader
-          }
-        });
-        if (!metadataResponse.ok) {
-          return c.json({ status: false, message: "Failed to fetch recording metadata" }, 400);
+      // Fetch recording metadata
+      const recordingMetadata = await provider.fetchRecordingMetadata(body.RecordingUrl as string);
+
+      // Fetch call details
+      const callDetails = await provider.fetchCallDetails(body.AccountSid as string, body.CallSid as string);
+
+      // Upload only the recording file
+      const media = await provider.fetchRecordingFile(body.RecordingUrl as string);
+
+      await c.env.recordings.put(
+        `recordings/${body.RecordingSid}.mp3`,
+        media,
+        {
+          httpMetadata: {
+            contentType: "audio/mpeg",
+          },
         }
-        const recordingMetadata = await metadataResponse.json() as any;
+      );
 
-        // Fetch call details from Twilio API  
-        const callApiUrl = `https://api.twilio.com/2010-04-01/Accounts/${body.AccountSid}/Calls/${body.CallSid}.json`;
-        const callResponse = await fetch(callApiUrl, {
-          headers: {
-            Authorization: authHeader
-          }
-        });
-        if (!callResponse.ok) {
-          return c.json({ status: false, message: "Failed to fetch call details" }, 400);
+      // Create metadata entry for the central index
+      const indexEntry: RecordingMetadata = {
+        recordingSid: recordingMetadata.sid,
+        callSid: recordingMetadata.call_sid,
+        start_time: recordingMetadata.start_time,
+        duration: recordingMetadata.duration,
+        from: callDetails.from,
+        timestamp: new Date().toISOString(),
+        mediaFile: `recordings/${body.RecordingSid}.mp3`
+      };
+
+      // Get existing index or create new one
+      let existingIndex: any[] = [];
+      try {
+        const existingIndexData = await c.env.recordings.get("index.json");
+        if (existingIndexData) {
+          const indexText = await existingIndexData.text();
+          existingIndex = JSON.parse(indexText);
         }
-        const callDetails = await callResponse.json() as any;
-
-        // Upload only the recording file
-        const mediaUrl = body.RecordingUrl as string + ".mp3";
-        const mediaResponse = await fetch(mediaUrl, {
-          headers: {
-            Authorization: authHeader
-          }
-        });
-        if (!mediaResponse.ok) {
-          return c.json({ status: false, message: "Failed to fetch recording file" }, 400);
-        }
-        const media = await mediaResponse.arrayBuffer();
-
-        await c.env.recordings.put(
-          `recordings/${body.RecordingSid}.mp3`,
-          media,
-          {
-            httpMetadata: {
-              contentType: "audio/mpeg",
-            },
-          }
-        );
-
-        // Create metadata entry for the central index
-        const indexEntry = {
-          recordingSid: recordingMetadata.sid,
-          callSid: recordingMetadata.call_sid,
-          start_time: recordingMetadata.start_time,
-          duration: recordingMetadata.duration,
-          from: callDetails.from,
-          timestamp: new Date().toISOString(),
-          mediaFile: `recordings/${body.RecordingSid}.mp3`
-        };
-
-        // Get existing index or create new one
-        let existingIndex: any[] = [];
-        try {
-          const existingIndexData = await c.env.recordings.get("index.json");
-          if (existingIndexData) {
-            const indexText = await existingIndexData.text();
-            existingIndex = JSON.parse(indexText);
-          }
-        } catch {
-          existingIndex = [];
-        }
-
-        // Append new entry to index
-        existingIndex.push(indexEntry);
-
-        // Store updated index
-        await c.env.recordings.put(
-          "index.json",
-          JSON.stringify(existingIndex, null, 2),
-          {
-            httpMetadata: {
-              contentType: "application/json",
-            },
-          }
-        );
-
-        // Delete the recording from Twilio
-        await fetch(metadataUrl, {
-          method: "DELETE",
-          headers: {
-            Authorization: authHeader
-          }
-        })
-
-        return c.json({
-          status: true,
-          message: "Recording stored successfully",
-        });
-
-      } else {
-        return c.text("Unsupported provider", 400);
+      } catch {
+        existingIndex = [];
       }
+
+      // Append new entry to index
+      existingIndex.push(indexEntry);
+
+      // Store updated index
+      await c.env.recordings.put(
+        "index.json",
+        JSON.stringify(existingIndex, null, 2),
+        {
+          httpMetadata: {
+            contentType: "application/json",
+          },
+        }
+      );
+
+      // Delete the recording from the provider
+      await provider.deleteRecording(body.RecordingUrl as string);
+
+      return c.json({
+        status: true,
+        message: "Recording stored successfully",
+      });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       return c.text(`Internal Server Error: ${errorMessage}`, 500);
