@@ -8,4 +8,4 @@ export const ProviderConfig = z.object({
   numbers: z.array(z.string()),
 })
 
-export type ProviderConfig = z.infer<typeof ProviderConfig>;
+export type ProviderConfigType = z.infer<typeof ProviderConfig>;
