@@ -6,7 +6,7 @@ import { getConfig } from "../lib/config";
 
 export class Incoming extends OpenAPIRoute {
   schema = {
-    tags: ["Incoming"],
+    tags: ["Voice API"],
     summary: "Endpoint for incoming calls",
     responses: {
       "200": {
