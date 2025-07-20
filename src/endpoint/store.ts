@@ -131,6 +131,14 @@ export class Store extends OpenAPIRoute {
           }
         );
 
+        // Delete the recording from Twilio
+        await fetch(metadataUrl, {
+          method: "DELETE",
+          headers: {
+            Authorization: authHeader
+          }
+        })
+
         return c.json({
           status: true,
           message: "Recording stored successfully",
