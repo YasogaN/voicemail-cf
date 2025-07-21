@@ -25,6 +25,11 @@ export const ProviderConfig = z.discriminatedUnion("provider", [
     provider: z.literal("twilio"),
     apiKey: z.string().nonempty("Twilio API key is required"),
     apiSecret: z.string().nonempty("Twilio API secret is required")
+  }),
+  BaseProviderConfig.extend({
+    provider: z.literal("signalwire"),
+    apiKey: z.string().nonempty("SignalWire API key is required"),
+    apiSecret: z.string().nonempty("SignalWire API secret is required")
   })
 ])
 
