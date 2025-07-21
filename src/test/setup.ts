@@ -1,5 +1,6 @@
 import 'service-worker-mock';
 import { vi } from 'vitest';
+import { createBaseTestEnv } from './utils/test-config';
 
 // Mock global fetch if not available
 if (!global.fetch) {
@@ -23,3 +24,6 @@ global.addEventListener = vi.fn();
   warn: vi.fn(),
   info: vi.fn(),
 };
+
+// Setup global mock environment for tests
+(global as any).mockEnv = createBaseTestEnv();
