@@ -16,7 +16,7 @@ export default defineConfig({
         '**/*.d.ts',
         'worker-configuration.d.ts',
         'wrangler.jsonc',
-        'vitest.config.ts'
+        'vitest.config.mts'
       ]
     },
     setupFiles: ['./src/test/setup.ts']
