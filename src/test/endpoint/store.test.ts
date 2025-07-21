@@ -4,6 +4,7 @@ import { Store } from '@/endpoint/store';
 import { fromHono } from 'chanfana';
 import { getConfig } from '@/lib/config';
 import { TestR2Bucket } from 'cloudflare-test-utils';
+import { createTestEnv, setupMockConfig } from '../utils/test-config';
 
 // Mock only the config module to provide test configuration
 vi.mock('@/lib/config', () => ({
@@ -128,37 +129,15 @@ describe('Store Endpoint', () => {
       deleteRecording: { ok: true },
     };
 
-    // Setup mock config
-    mockConfig = {
-      provider: 'twilio' as const,
-      numbers: ['+1234567890'] as [string, ...string[]],
-      recording: {
-        type: 'text' as const,
-        text: 'Please leave a message',
-        maxLength: 30
-      },
-      endpoint: 'https://example.com/webhook',
-      apiKey: 'test_key',
-      apiSecret: 'test_secret'
-    };
-
-    vi.mocked(getConfig).mockReturnValue(mockConfig);
+    // Setup mock config using the shared utility
+    mockConfig = setupMockConfig(getConfig);
 
     // Setup mock environment with R2 bucket
     const mockR2Bucket = new TestR2Bucket();
 
-    mockEnv = {
-      provider: 'twilio',
-      numbers: '+1234567890',
-      recording_type: 'text',
-      recording_text: 'Please leave a message',
-      recording_url: '',
-      recording_max_length: '30',
-      endpoint: 'https://example.com/webhook',
-      twilio_api_key: 'test_key',
-      twilio_api_secret: 'test_secret',
+    mockEnv = createTestEnv({
       recordings: mockR2Bucket,
-    };
+    });
 
     // Set up global mockEnv for consistency with other tests
     (global as any).mockEnv = mockEnv;

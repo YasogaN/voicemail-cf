@@ -4,6 +4,7 @@ import { Record } from '@/endpoint/record';
 import { fromHono } from 'chanfana';
 import { getConfig } from '@/lib/config';
 import { TwilioProvider } from '@/lib/providers/twilio';
+import { setupMockConfig } from '../utils/test-config';
 
 // Mock only the config module to provide test configuration
 vi.mock('@/lib/config', () => ({
@@ -25,21 +26,8 @@ describe('Record Endpoint', () => {
     // Reset mocks
     vi.clearAllMocks();
 
-    // Setup mock config
-    mockConfig = {
-      provider: 'twilio' as const,
-      numbers: ['+1234567890'] as [string, ...string[]],
-      recording: {
-        type: 'text' as const,
-        text: 'Please leave a message',
-        maxLength: 30
-      },
-      endpoint: 'https://example.com/webhook',
-      apiKey: 'test_key',
-      apiSecret: 'test_secret'
-    };
-
-    vi.mocked(getConfig).mockReturnValue(mockConfig);
+    // Setup mock config using the shared utility
+    mockConfig = setupMockConfig(getConfig);
   });
 
   it('should return recording TwiML response', async () => {
