@@ -1,3 +1,4 @@
+import { getConfig } from '@/lib/config';
 import { vi } from 'vitest';
 
 /**
@@ -75,7 +76,7 @@ export const createTestEnv = <T extends keyof typeof ProviderTestConfigs>(
  * Setup mock config for tests that use getConfig - provider-aware
  */
 export const setupMockConfig = <T extends keyof typeof ProviderTestConfigs>(
-  getConfigMock: any,
+  getConfigMock: typeof getConfig,
   provider: T = 'twilio' as T,
   configOverrides: Partial<ReturnType<typeof ProviderTestConfigs[T]['createConfig']>> = {}
 ) => {
