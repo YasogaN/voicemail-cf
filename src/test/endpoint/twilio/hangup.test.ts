@@ -27,7 +27,7 @@ describe('Hangup Endpoint', () => {
     vi.clearAllMocks();
 
     // Setup mock config using the shared utility
-    mockConfig = setupMockConfig(getConfig);
+    mockConfig = setupMockConfig(getConfig, 'twilio');
   });
 
   it('should generate valid TwiML hangup response', async () => {

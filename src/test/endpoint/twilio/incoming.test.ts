@@ -4,7 +4,7 @@ import { Incoming } from '@/endpoint/incoming';
 import { fromHono } from 'chanfana';
 import { getConfig } from '@/lib/config';
 import { TwilioProvider } from '@/lib/providers/twilio';
-import { createTestConfig, setupMockConfig } from '../../utils/test-config';
+import { setupMockConfig } from '../../utils/test-config';
 
 // Mock only the config module to provide test configuration
 vi.mock('@/lib/config', () => ({
@@ -27,7 +27,7 @@ describe('Incoming Endpoint', () => {
     vi.clearAllMocks();
 
     // Setup mock config using the shared utility
-    mockConfig = setupMockConfig(getConfig);
+    mockConfig = setupMockConfig(getConfig, 'twilio');
   });
 
   it('should handle incoming call with From parameter', async () => {

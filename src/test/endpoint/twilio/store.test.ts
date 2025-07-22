@@ -130,12 +130,12 @@ describe('Store Endpoint', () => {
     };
 
     // Setup mock config using the shared utility
-    mockConfig = setupMockConfig(getConfig);
+    mockConfig = setupMockConfig(getConfig, 'twilio');
 
     // Setup mock environment with R2 bucket
     const mockR2Bucket = new TestR2Bucket();
 
-    mockEnv = createTestEnv({
+    mockEnv = createTestEnv('twilio', {
       recordings: mockR2Bucket,
     });
 
