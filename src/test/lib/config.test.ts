@@ -27,7 +27,7 @@ describe('Config Module', () => {
   });
 
   it('should parse valid twilio config with URL recording', () => {
-    mockEnv = ProviderEnvVariations.twilio.urlRecording(baseEnv)
+    mockEnv = ProviderEnvVariations.twilio.urlRecording(baseEnv);
     const config = getConfig(mockEnv);
 
     expect(config.recording.type).toBe('url');
