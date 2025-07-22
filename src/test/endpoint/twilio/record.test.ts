@@ -4,7 +4,7 @@ import { Record } from '@/endpoint/record';
 import { fromHono } from 'chanfana';
 import { getConfig } from '@/lib/config';
 import { TwilioProvider } from '@/lib/providers/twilio';
-import { setupMockConfig } from '../utils/test-config';
+import { setupMockConfig } from '../../utils/test-config';
 
 // Mock only the config module to provide test configuration
 vi.mock('@/lib/config', () => ({

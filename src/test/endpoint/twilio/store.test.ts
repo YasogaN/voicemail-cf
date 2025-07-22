@@ -4,7 +4,7 @@ import { Store } from '@/endpoint/store';
 import { fromHono } from 'chanfana';
 import { getConfig } from '@/lib/config';
 import { TestR2Bucket } from 'cloudflare-test-utils';
-import { createTestEnv, setupMockConfig } from '../utils/test-config';
+import { createTestEnv, setupMockConfig } from '../../utils/test-config';
 
 // Mock only the config module to provide test configuration
 vi.mock('@/lib/config', () => ({
