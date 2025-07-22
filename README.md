@@ -34,6 +34,7 @@ The service is built using modern web technologies:
 
 - [Cloudflare Workers account](https://workers.dev) (free tier sufficient)
 - [Node.js 16+](https://nodejs.org/) (specified in package.json engines)
+- [pnpm](https://pnpm.io/) (package manager - required)
 - [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/)
 
 ### Installation
@@ -48,7 +49,7 @@ The service is built using modern web technologies:
 2. **Install dependencies**
 
    ```bash
-   yarn install
+   pnpm install
    ```
 
 3. **Authenticate with Cloudflare**
@@ -148,21 +149,23 @@ The project includes comprehensive testing with Vitest:
 ### Test Structure
 
 - **Unit Tests**: Individual endpoint and provider logic testing
+- **Provider-Specific Tests**: Organized by provider (e.g., `twilio/`) for better maintainability
 - **Integration Tests**: End-to-end workflow testing (placeholder directory ready)
 - **Configuration Tests**: Environment variable validation testing
 - **Mock Support**: R2 bucket mocking with `cloudflare-test-utils`
+- **Test Utilities**: Centralized test configuration and provider-specific helpers
 
 ### Running Tests
 
 ```bash
 # Run all tests
-yarn test
+pnpm test
 
 # Run tests with coverage report
-yarn run test:coverage
+pnpm run test:coverage
 
 # Run tests in watch mode during development
-yarn run test:watch
+pnpm run test:watch
 ```
 
 ### Test Coverage
@@ -170,17 +173,38 @@ yarn run test:watch
 The test suite covers:
 
 - All API endpoints (`/health`, `/incoming`, `/record`, `/hangup`, `/store`)
-- Provider implementations (Twilio)
+- Provider implementations (Twilio) with dedicated test suites
 - Configuration validation and parsing
 - Error handling scenarios
 - TwiML response generation
+
+### Test Organization
+
+Tests are organized by provider for better maintainability:
+
+```
+src/test/
+├── setup.ts              # Global test setup and mock environment
+├── types.test.ts          # Type validation tests
+├── endpoint/              # Provider-specific endpoint tests
+│   └── twilio/            # Twilio-specific test implementations
+│       ├── hangup.test.ts
+│       ├── health.test.ts
+│       ├── incoming.test.ts
+│       ├── record.test.ts
+│       └── store.test.ts
+├── lib/
+│   └── config.test.ts     # Configuration validation tests
+└── utils/
+    └── test-config.ts     # Test utilities and provider configurations
+```
 
 ### Development
 
 1. **Start local development server**
 
    ```bash
-   yarn run dev
+   pnpm run dev
    ```
 
    This starts the Wrangler development server with hot reloading.
@@ -194,12 +218,12 @@ The test suite covers:
 4. **Run tests during development**
 
    ```bash
-   yarn run test:watch
+   pnpm run test:watch
    ```
 
 5. **Generate TypeScript types**
    ```bash
-   yarn run cf-typegen
+   pnpm run cf-typegen
    ```
    This generates types based on your Cloudflare Workers environment.
 
@@ -306,17 +330,19 @@ src/
 │       ├── index.ts      # Provider factory and exports
 │       └── twilio.ts     # Twilio provider implementation
 └── test/                 # Comprehensive test suite
-    ├── setup.ts          # Test environment setup
+    ├── setup.ts          # Global test setup and mock environment
     ├── types.test.ts     # Type validation tests
-    ├── endpoint/         # Endpoint-specific tests
-    │   ├── hangup.test.ts
-    │   ├── health.test.ts
-    │   ├── incoming.test.ts
-    │   ├── record.test.ts
-    │   └── store.test.ts
-    ├── integration/      # Integration test placeholder
-    └── lib/
-        └── config.test.ts # Configuration validation tests
+    ├── endpoint/         # Provider-specific endpoint tests
+    │   └── twilio/       # Twilio-specific test implementations
+    │       ├── hangup.test.ts
+    │       ├── health.test.ts
+    │       ├── incoming.test.ts
+    │       ├── record.test.ts
+    │       └── store.test.ts
+    ├── lib/
+    │   └── config.test.ts # Configuration validation tests
+    └── utils/
+        └── test-config.ts # Test utilities and provider configurations
 ```
 
 ## Development Guidelines
@@ -351,22 +377,22 @@ The project includes comprehensive testing with Vitest:
 
 ```bash
 # Run all tests
-yarn test
+pnpm test
 
 # Run tests with coverage
-yarn run test:coverage
+pnpm run test:coverage
 
 # Run tests in watch mode
-yarn run test:watch
+pnpm run test:watch
 
 # Run development server
-yarn run dev
+pnpm run dev
 
 # Generate TypeScript types from Wrangler
-yarn run cf-typegen
+pnpm run cf-typegen
 
 # Deploy to production
-yarn run deploy
+pnpm run deploy
 ```
 
 ## Roadmap
@@ -376,11 +402,12 @@ yarn run deploy
 The project currently includes:
 
 - ✅ **Core Voicemail Functionality**: Complete recording, storage, and retrieval system
-- ✅ **Twilio Integration**: Full support for Twilio voice services
+- ✅ **Twilio Integration**: Full support for Twilio voice services with dedicated test suite
 - ✅ **Cloudflare R2 Storage**: Automatic recording and metadata storage
 - ✅ **OpenAPI Documentation**: Interactive API documentation with Chanfana
-- ✅ **Comprehensive Testing**: Unit and integration tests with Vitest
+- ✅ **Comprehensive Testing**: Modular unit and integration tests with Vitest, organized by provider
 - ✅ **Type Safety**: Full TypeScript implementation with Zod validation
+- ✅ **Modern Package Management**: Using pnpm for faster, more efficient dependency management
 
 ### Planned Features
 
@@ -414,17 +441,17 @@ We welcome contributions! Here's how to get started:
 
 1. Fork the repository
 2. Clone your fork and navigate to the project directory
-3. Install dependencies: `yarn install`
+3. Install dependencies: `pnpm install`
 4. Set up your environment variables for testing
-5. Run tests to ensure everything works: `yarn test`
-6. Start the development server: `yarn dev`
+5. Run tests to ensure everything works: `pnpm test`
+6. Start the development server: `pnpm dev`
 
 ### Making Changes
 
 1. Create a feature branch from main
 2. Make your changes with appropriate tests
-3. Ensure all tests pass: `yarn test`
-4. Verify type safety: `yarn cf-typegen`
+3. Ensure all tests pass: `pnpm test`
+4. Verify type safety: `pnpm cf-typegen`
 5. Test your changes in the development environment
 6. Submit a pull request with a clear description
 
