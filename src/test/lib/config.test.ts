@@ -4,12 +4,14 @@ import { createTestEnv, ProviderEnvVariations } from '../utils/test-config';
 
 describe('Config Module', () => {
   let mockEnv: Env;
+  let baseEnv: Env;
 
   beforeEach(() => {
-    mockEnv = createTestEnv();
+    baseEnv = createTestEnv();
   });
 
   it('should parse valid twilio config with text recording', () => {
+    mockEnv = baseEnv;
     const config = getConfig(mockEnv);
 
     expect(config.provider).toBe('twilio');
@@ -25,8 +27,7 @@ describe('Config Module', () => {
   });
 
   it('should parse valid twilio config with URL recording', () => {
-    mockEnv = createTestEnv('twilio', ProviderEnvVariations.twilio.urlRecording(mockEnv));
-
+    mockEnv = createTestEnv('twilio', ProviderEnvVariations.twilio.urlRecording(baseEnv));
     const config = getConfig(mockEnv);
 
     expect(config.recording.type).toBe('url');
@@ -36,7 +37,7 @@ describe('Config Module', () => {
   });
 
   it('should handle single phone number', () => {
-    mockEnv = createTestEnv('twilio', ProviderEnvVariations.twilio.singleNumber(mockEnv));
+    mockEnv = createTestEnv('twilio', ProviderEnvVariations.twilio.singleNumber(baseEnv));
 
     const config = getConfig(mockEnv);
 
@@ -94,7 +95,7 @@ describe('Config Module', () => {
   });
 
   it('should handle numeric maxLength strings', () => {
-    mockEnv = createTestEnv('twilio', ProviderEnvVariations.twilio.customRecordingLength(mockEnv, '60'));
+    mockEnv = createTestEnv('twilio', ProviderEnvVariations.twilio.customRecordingLength(baseEnv, '60'));
 
     const config = getConfig(mockEnv);
 
