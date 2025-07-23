@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { getConfig } from '@/lib/config';
-import { createTestEnv, ProviderEnvVariations } from '../utils/test-config';
+import { createBaseTestEnv, createTestEnv, ProviderEnvVariations } from '../utils/test-config';
 
 describe('Config Module', () => {
   let mockEnv: Env;
   let baseEnv: Env;
 
   beforeEach(() => {
-    baseEnv = createTestEnv();
+    baseEnv = createBaseTestEnv();
   });
 
   it('should parse valid twilio config with text recording', () => {
