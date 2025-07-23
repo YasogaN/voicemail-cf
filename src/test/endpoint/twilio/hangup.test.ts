@@ -26,7 +26,6 @@ describe('Hangup Endpoint', () => {
     // Reset mocks
     vi.clearAllMocks();
 
-    // Setup mock config using the shared utility
     mockConfig = setupMockConfig(getConfig, 'twilio');
   });
 

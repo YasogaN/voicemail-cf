@@ -129,7 +129,7 @@ describe('Store Endpoint', () => {
       deleteRecording: { ok: true },
     };
 
-    // Setup mock config using the shared utility
+
     mockConfig = setupMockConfig(getConfig, 'twilio');
 
     // Setup mock environment with R2 bucket
