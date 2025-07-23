@@ -29,7 +29,7 @@ export const ProviderTestConfigs = {
       twilio_api_key: 'test_api_key',
       twilio_api_secret: 'test_api_secret',
       recording_url: '', // will be set in tests if needed as this is a text recording
-      recordings: undefined // will be set in tests if needed as this is a text recording
+      recordings: undefined // Expected to be an array of recording objects, e.g., [{ url: 'https://example.com/recording.mp3', duration: 30 }]. Will be set in tests if needed.
     })
   }
   // Additional providers can be added here in the future
