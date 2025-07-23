@@ -28,8 +28,8 @@ export const ProviderTestConfigs = {
       endpoint: 'https://example.com/webhook',
       twilio_api_key: 'test_api_key',
       twilio_api_secret: 'test_api_secret',
-      recording_url: '', // default value for tests
-      recordings: undefined
+      recording_url: '', // will be set in tests if needed as this is a text recording
+      recordings: undefined // will be set in tests if needed as this is a text recording
     })
   }
   // Additional providers can be added here in the future
