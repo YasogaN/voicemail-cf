@@ -26,4 +26,4 @@ global.addEventListener = vi.fn();
 };
 
 // Setup global mock environment for tests
-(global as any).mockEnv = createBaseTestEnv();
+(global as any).baseEnv = createBaseTestEnv();
