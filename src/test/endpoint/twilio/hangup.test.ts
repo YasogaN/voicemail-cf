@@ -4,6 +4,7 @@ import { Hangup } from '@/endpoint/hangup';
 import { fromHono } from 'chanfana';
 import { getConfig } from '@/lib/config';
 import { TwilioProvider } from '@/lib/providers/twilio';
+import { setupMockConfig } from '../../utils/test-config';
 
 // Mock only the config module to provide test configuration
 vi.mock('@/lib/config', () => ({
@@ -25,20 +26,7 @@ describe('Hangup Endpoint', () => {
     // Reset mocks
     vi.clearAllMocks();
 
-    mockConfig = {
-      provider: 'twilio' as const,
-      numbers: ['+1234567890'] as [string, ...string[]],
-      recording: {
-        type: 'text' as const,
-        text: 'Please leave a message',
-        maxLength: 30
-      },
-      endpoint: 'https://example.com/webhook',
-      apiKey: 'test_key',
-      apiSecret: 'test_secret'
-    };
-
-    vi.mocked(getConfig).mockReturnValue(mockConfig);
+    mockConfig = setupMockConfig(getConfig, 'twilio');
   });
 
   it('should generate valid TwiML hangup response', async () => {

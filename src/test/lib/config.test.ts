@@ -1,25 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { getConfig } from '@/lib/config';
+import { createBaseTestEnv, createTestEnv, ProviderEnvVariations } from '../utils/test-config';
 
 describe('Config Module', () => {
   let mockEnv: Env;
+  let baseEnv: Env;
 
   beforeEach(() => {
-    mockEnv = {
-      provider: 'twilio',
-      numbers: '+1234567890,+0987654321',
-      recording_type: 'text',
-      recording_text: 'Please leave a message after the beep.',
-      recording_max_length: '30',
-      endpoint: 'https://example.com/webhook',
-      twilio_api_key: 'test_api_key',
-      twilio_api_secret: 'test_api_secret',
-      recording_url: '', // default value for tests
-      recordings: undefined
-    };
+    baseEnv = createBaseTestEnv();
   });
 
   it('should parse valid twilio config with text recording', () => {
+    mockEnv = baseEnv;
     const config = getConfig(mockEnv);
 
     expect(config.provider).toBe('twilio');
@@ -35,10 +27,7 @@ describe('Config Module', () => {
   });
 
   it('should parse valid twilio config with URL recording', () => {
-    mockEnv.recording_type = 'url';
-    mockEnv.recording_url = 'https://example.com/greeting.mp3';
-    delete mockEnv.recording_text;
-
+    mockEnv = ProviderEnvVariations.twilio.urlRecording(baseEnv);
     const config = getConfig(mockEnv);
 
     expect(config.recording.type).toBe('url');
@@ -48,7 +37,7 @@ describe('Config Module', () => {
   });
 
   it('should handle single phone number', () => {
-    mockEnv.numbers = '+1234567890';
+    mockEnv = createTestEnv('twilio', ProviderEnvVariations.twilio.singleNumber(baseEnv));
 
     const config = getConfig(mockEnv);
 
@@ -56,7 +45,7 @@ describe('Config Module', () => {
   });
 
   it('should handle numbers with extra whitespace', () => {
-    mockEnv.numbers = ' +1234567890 , +0987654321 ';
+    mockEnv = createTestEnv('twilio', { numbers: ' +1234567890 , +0987654321 ' });
 
     const config = getConfig(mockEnv);
 
@@ -64,7 +53,7 @@ describe('Config Module', () => {
   });
 
   it('should use default maxLength when not provided', () => {
-    delete mockEnv.recording_max_length;
+    mockEnv = createTestEnv('twilio', { recording_max_length: undefined });
 
     const config = getConfig(mockEnv);
 
@@ -72,39 +61,41 @@ describe('Config Module', () => {
   });
 
   it('should throw error for missing required fields', () => {
-    delete mockEnv.twilio_api_key;
+    mockEnv = createTestEnv('twilio', { twilio_api_key: undefined });
 
     expect(() => getConfig(mockEnv)).toThrow('Configuration validation failed');
   });
 
   it('should throw error for invalid recording type', () => {
-    mockEnv.recording_type = 'invalid' as any;
+    mockEnv = createTestEnv('twilio', { recording_type: 'invalid' as any });
 
     expect(() => getConfig(mockEnv)).toThrow('Configuration validation failed');
   });
 
   it('should throw error for empty numbers array', () => {
-    mockEnv.numbers = '';
+    mockEnv = createTestEnv('twilio', { numbers: '' });
 
     expect(() => getConfig(mockEnv)).toThrow('Configuration validation failed');
   });
 
   it('should throw error for invalid endpoint URL', () => {
-    mockEnv.endpoint = 'not-a-url';
+    mockEnv = createTestEnv('twilio', { endpoint: 'not-a-url' });
 
     expect(() => getConfig(mockEnv)).toThrow('Configuration validation failed');
   });
 
   it('should throw error for invalid recording URL', () => {
-    mockEnv.recording_type = 'url';
-    mockEnv.recording_url = 'not-a-url';
-    delete mockEnv.recording_text;
+    mockEnv = createTestEnv('twilio', {
+      recording_type: 'url',
+      recording_url: 'not-a-url',
+      recording_text: undefined
+    });
 
     expect(() => getConfig(mockEnv)).toThrow('Configuration validation failed');
   });
 
   it('should handle numeric maxLength strings', () => {
-    mockEnv.recording_max_length = '60';
+    mockEnv = createTestEnv('twilio', ProviderEnvVariations.twilio.customRecordingLength(baseEnv, '60'));
 
     const config = getConfig(mockEnv);
 
@@ -112,7 +103,7 @@ describe('Config Module', () => {
   });
 
   it('should ignore invalid maxLength strings', () => {
-    mockEnv.recording_max_length = 'invalid';
+    mockEnv = createTestEnv('twilio', { recording_max_length: 'invalid' });
 
     const config = getConfig(mockEnv);
 
